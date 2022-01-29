@@ -35,7 +35,7 @@ const Registration = () => {
       e.preventDefault();
 
       setLoading(true);
-      fetch("http://127.0.0.1:8000/api/user/register", {
+      fetch("https://simplor.herokuapp.com/api/user/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(user),
@@ -74,91 +74,93 @@ const Registration = () => {
                     <Image src="cycle.PNG" className="img-fluid w-100 h-100" />
                   </Col>
                   <Col className="p-5 ">
-                    <Row className="justify-content-md-center mb-5">
+                    <Row className="text-center">
                       <h3>Registration</h3>
                     </Row>
-                    <Form
-                      noValidate
-                      validated={validated}
-                      onSubmit={saveUser}
-                      method="POST"
-                    >
-                      <Row className="mb-3">
-                        <FormGroup>
-                          <FormLabel>First Name</FormLabel>
-                          <FormControl
-                            name="first_name"
-                            onChange={(e) => handleChange(e)}
-                            type="text"
-                            required
-                          ></FormControl>
-                        </FormGroup>
-                        <FormGroup>
-                          <FormLabel>Last Name</FormLabel>
-                          <FormControl
-                            name="last_name"
-                            onChange={(e) => handleChange(e)}
-                            type="text"
-                            required
-                          ></FormControl>
-                        </FormGroup>
-                        <FormGroup>
-                          <FormLabel>Phone</FormLabel>
-                          <FormControl
-                            name="phone"
-                            onChange={(e) => handleChange(e)}
-                            type="text"
-                            required
-                          ></FormControl>
-                        </FormGroup>
-                        <FormGroup>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl
-                            name="email"
-                            onChange={(e) => handleChange(e)}
-                            type="email"
-                            required
-                          ></FormControl>
-                        </FormGroup>
-                        <FormGroup>
-                          <FormLabel>Password</FormLabel>
-                          <FormControl
-                            name="password"
-                            onChange={(e) => handleChange(e)}
-                            type="password"
-                            maxLength="30"
-                            required
-                          ></FormControl>
-                        </FormGroup>
-                      </Row>
-                      <Button variant="link" type="submit" href="/">
-                        LogIn
-                      </Button>
-                      {loading ? (
-                        <Button
-                          variant="primary"
-                          disabled
-                          className="float-end mt-2"
-                        >
-                          <Spinner
-                            as="span"
-                            animation="border"
-                            size="sm"
-                            role="status"
-                            aria-hidden="true"
-                          />
-                          Loading...
+                    <Row>
+                      <Form
+                        noValidate
+                        validated={validated}
+                        onSubmit={saveUser}
+                        method="POST"
+                      >
+                        <Row className="mb-3">
+                          <FormGroup>
+                            <FormLabel>First Name</FormLabel>
+                            <FormControl
+                              name="first_name"
+                              onChange={(e) => handleChange(e)}
+                              type="text"
+                              required
+                            ></FormControl>
+                          </FormGroup>
+                          <FormGroup>
+                            <FormLabel>Last Name</FormLabel>
+                            <FormControl
+                              name="last_name"
+                              onChange={(e) => handleChange(e)}
+                              type="text"
+                              required
+                            ></FormControl>
+                          </FormGroup>
+                          <FormGroup>
+                            <FormLabel>Phone</FormLabel>
+                            <FormControl
+                              name="phone"
+                              onChange={(e) => handleChange(e)}
+                              type="text"
+                              required
+                            ></FormControl>
+                          </FormGroup>
+                          <FormGroup>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl
+                              name="email"
+                              onChange={(e) => handleChange(e)}
+                              type="email"
+                              required
+                            ></FormControl>
+                          </FormGroup>
+                          <FormGroup>
+                            <FormLabel>Password</FormLabel>
+                            <FormControl
+                              name="password"
+                              onChange={(e) => handleChange(e)}
+                              type="password"
+                              maxLength="30"
+                              required
+                            ></FormControl>
+                          </FormGroup>
+                        </Row>
+                        <Button variant="link" type="submit" href="/">
+                          LogIn
                         </Button>
-                      ) : (
-                        <Button
-                          variant="primary"
-                          type="submit"
-                          className="float-end mt-2"
-                        >
-                          Sign Up
-                        </Button>
-                      )}
-                    </Form>
+                        {loading ? (
+                          <Button
+                            variant="primary"
+                            disabled
+                            className="float-end mt-2"
+                          >
+                            <Spinner
+                              as="span"
+                              animation="border"
+                              size="sm"
+                              role="status"
+                              aria-hidden="true"
+                            />
+                            Loading...
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="primary"
+                            type="submit"
+                            className="float-end mt-2"
+                          >
+                            Sign Up
+                          </Button>
+                        )}
+                      </Form>
+                    </Row>
                   </Col>
                 </Row>
               </Card.Body>

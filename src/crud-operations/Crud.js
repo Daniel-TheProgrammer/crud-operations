@@ -21,16 +21,17 @@ import {
 } from "react-bootstrap";
 const Crud = () => {
   let navigate = useNavigate();
-  const [user, setUser] = useState({});
+  const [item, setItem] = useState({});
   const [validated, setValidated] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [userList, setUserList] = useState([]);
+  const [itemList, setItemList] = useState([]);
   const [toggle, setToggle] = useState(false);
   const [showCanvas, setShowCanvas] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
+  const [file, setFile] = useState(null);
 
   useEffect(() => {
-    fetch("API", {
+    fetch("https://simplor.herokuapp.com/api/category/categories", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -39,7 +40,12 @@ const Crud = () => {
     })
       .then((res) => res.json())
       .then((result) => {
-        setUserList(result);
+        console.log(result);
+        if (result.constructor.prototype.hasOwnProperty("push")) {
+          setItemList(result);
+        } else {
+          setItemList([]);
+        }
       })
       .catch((err) => {
         console.log(err);
@@ -51,14 +57,22 @@ const Crud = () => {
   };
 
   const handleDialogYes = () => {
-    fetch("API" + user.id, {
+    fetch("https://simplor.herokuapp.com/api/category/delete/" + item.id, {
       method: "DELETE",
     })
-      .then((res) => res.json())
-      .then((res) => console.log(res))
+      .then((response) => {
+        if (response.status === 204) {
+          setToggle(!toggle);
+        } else {
+          toast.error(response.statusText + "(" + response.status + ")", {
+            position: "bottom-right",
+          });
+        }
+      })
       .catch((err) => {
         console.log(err);
       });
+
     setShowDialog(false);
   };
 
@@ -69,7 +83,12 @@ const Crud = () => {
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    setUser({ ...user, [name]: value });
+    setItem({ ...item, [name]: value });
+  };
+
+  const handleImage = (event) => {
+    setFile(event.target.files[0]);
+    setItem({ ...item, image: event.target.files[0] });
   };
 
   const logOut = () => {
@@ -84,48 +103,82 @@ const Crud = () => {
     if (form.checkValidity() === false) {
       e.stopPropagation();
       setValidated(true);
+
+      console.log(file);
+      console.log(item);
       return;
     }
 
-    var methodType = user.id ? "PUT" : "POST";
+    if (item.id) {
+      setLoading(true);
 
-    setLoading(true);
-    fetch("API", {
-      method: methodType,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify(user),
-    })
-      .then((response) => {
-        console.log(response);
-        if (response.status === 200) {
-          toast.success("Data Added Successfuly", {
-            position: "bottom-right",
-          });
-        } else {
-          toast.error(response.statusText + "(" + response.status + ")", {
-            position: "bottom-right",
-          });
-        }
-        setValidated(false);
-        setLoading(false);
-        setToggle(!toggle);
+      fetch("https://simplor.herokuapp.com/api/category/update/" + item.id, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(item),
       })
-      .catch((err) => {
-        console.log(err);
-        setLoading(false);
-      });
+        .then((response) => {
+          console.log(response);
+          if (response.status === 200) {
+            toast.success("Data Updated Successfuly", {
+              position: "bottom-right",
+            });
+          } else {
+            toast.error(response.statusText + "(" + response.status + ")", {
+              position: "bottom-right",
+            });
+          }
+          setValidated(false);
+          setLoading(false);
+          setToggle(!toggle);
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
+        });
+    } else {
+      setLoading(true);
+
+      fetch("https://simplor.herokuapp.com/api/category/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(item),
+      })
+        .then((response) => {
+          console.log(response);
+          if (response.status === 200) {
+            toast.success("Data Added Successfuly", {
+              position: "bottom-right",
+            });
+          } else {
+            toast.error(response.statusText + "(" + response.status + ")", {
+              position: "bottom-right",
+            });
+          }
+          setValidated(false);
+          setLoading(false);
+          setToggle(!toggle);
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
+        });
+    }
   };
   return (
     <div>
       <Navbar bg="dark" variant="dark">
         <Container>
-          <Navbar.Brand href="#home">SIMPLE-CRUD</Navbar.Brand>
-          <Navbar.Brand onClick={logOut} className="float-end">
+          <Navbar.Brand>SIMPLE-CRUD</Navbar.Brand>
+          <Button variant="dark" className="float-end" onClick={logOut}>
             Logout
-          </Navbar.Brand>
+          </Button>
         </Container>
       </Navbar>
       <Container>
@@ -134,7 +187,7 @@ const Crud = () => {
             variant="primary"
             onClick={() => {
               setShowCanvas(true);
-              setUser({});
+              setItem({});
             }}
             className="d-flex justify-content-end"
           >
@@ -152,26 +205,24 @@ const Crud = () => {
                     <th>Image</th>
                     <th> Name</th>
                     <th>Description</th>
-                    <th>Created_at</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {userList.map((item, index) => (
+                  {itemList.map((itm, index) => (
                     <tr
                       onClick={() => {
-                        setUser(item);
+                        setItem(itm);
                       }}
                       key={index}
-                      className={item.id === user.id ? "table-active" : ""}
+                      className={itm.id === item.id ? "table-active" : ""}
                     >
                       <td>{index + 1}</td>
                       <td>
-                        <img src={item.image} alt="user" />
+                        <img src={itm.image} alt="item" />
                       </td>
-                      <td>{item.name}</td>
-                      <td>{item.description}</td>
-                      <td>{item.created_at}</td>
+                      <td>{itm.name}</td>
+                      <td>{itm.description}</td>
 
                       <td>
                         <Button
@@ -219,27 +270,17 @@ const Crud = () => {
                     name="name"
                     onChange={(e) => handleChange(e)}
                     type="text"
-                    value={user.name}
+                    value={item.name}
                     required
                   ></FormControl>
                 </FormGroup>
                 <FormGroup as={Col}>
-                  <FormLabel>Last Name</FormLabel>
+                  <FormLabel>Description</FormLabel>
                   <FormControl
                     name="description"
                     onChange={(e) => handleChange(e)}
                     type="text"
-                    value={user.description}
-                    required
-                  ></FormControl>
-                </FormGroup>
-                <FormGroup as={Col}>
-                  <FormLabel>Created at</FormLabel>
-                  <FormControl
-                    name="created_at"
-                    onChange={(e) => handleChange(e)}
-                    type="date"
-                    value={user.created_at}
+                    value={item.description}
                     required
                   ></FormControl>
                 </FormGroup>
@@ -248,13 +289,11 @@ const Crud = () => {
                 <FormGroup as={Col}>
                   <FormLabel>Image</FormLabel>
                   <FormControl
-                    name="image"
-                    onChange={(e) => handleChange(e)}
                     type="file"
-                    value={user.image}
-                    required
+                    onChange={(e) => handleImage(e)}
                   ></FormControl>
                 </FormGroup>
+                {/* <input type="file" onChange={(e) => handleImage(e)} /> */}
               </Row>
 
               {loading ? (
@@ -274,7 +313,7 @@ const Crud = () => {
                   type="submit"
                   className="float-end mt-2"
                 >
-                  {user.id ? "Update" : "Save"}
+                  {item.id ? "Update" : "Save"}
                 </Button>
               )}
             </Form>
